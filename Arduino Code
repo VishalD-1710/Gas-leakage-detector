@@ -1,0 +1,58 @@
+#include <SoftwareSerial.h>
+#include <TinyGPS.h>
+static const uint32_t GPSBaud = 9600;
+TinyGPS gps;
+SoftwareSerial ss(A0, A1);
+SoftwareSerial mySerial(2, 3);
+void SendMessage(String u);
+void setup()
+{
+  mySerial.begin(115200);   // Setting the baud rate of GSM Module  
+  ss.begin(GPSBaud);
+  Serial.begin(9600);    // Setting the baud rate of Serial Monitor (Arduino)
+  delay(100);
+  pinMode(A3,OUTPUT);//BIZZ
+  pinMode(A4,OUTPUT);//RELAY
+}
+void loop()
+{
+  float flat, flon;
+  unsigned long age;
+  // Serial.print("GAS LEVEL = ");
+  // Serial.println(analogRead(A2));
+  // delay(200);
+  //int q=analogRead(A2);
+  //outputValue = map(q, 0, 1023, 0, 8000);
+  if(digitalRead(8)==LOW)
+  {
+    digitalWrite(A3,HIGH);
+    digitalWrite(A4,HIGH);
+    SendMessage("7200013775");
+    SendMessage("8870569469");
+    SendMessage("9382149588");
+    mySerial.println("AT");
+    delay(100);
+    mySerial.println("ATD+917200013775;");
+    delay(100);
+    mySerial.println("AT");
+    delay(100);
+    mySerial.println("ATD+918870569469;");
+    delay(100);
+    mySerial.println();
+    delay(100);
+  }
+  digitalWrite(A3,LOW);
+  digitalWrite(A4,LOW);
+}
+void SendMessage(String u)
+{
+  mySerial.println("AT+CMGF=1");    //Sets the GSM Module in Text Mode
+  delay(1000);  // Delay of 1000 milli seconds or 1 second
+  mySerial.println("AT+CMGS=\"+91"+String(u)+"\"\r"); // Replace x with mobile number
+  delay(1000);
+  mySerial.println("EXCESS GAS DETECTED !! https://www.google.com/maps/search/?api=1&query="+String(12.8248660)+","+String(80.0452260));// //change the lat and lon value according to the location because the gps module has some issuse...
+  delay(1000);
+  mySerial.println((char)26);// ASCII code of CTRL+Z
+  delay(1000);
+  
+}
